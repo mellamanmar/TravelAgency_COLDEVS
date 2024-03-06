@@ -2,7 +2,7 @@
 
 ## Descripción del proyecto
 
-Se realiza con el fin de realizar una API RESTful utilizando Flask para gestionar el booking de tours. La API permitirá a los usuarios realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar), se realizan estas consultas desde la aplicación de Postman sobre los tours y las reservas como prueba técnica de la empresa COLDEVS.
+Se realiza con el fin de realizar una API RESTful utilizando Flask para gestionar el booking de tours. La API permitirá a los usuarios realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar), estas consultas se realizan y prueban desde la aplicación de Postman como finalidad de la prueba técnica en COLDEVS.
 
 
 ## Funcionalidades
