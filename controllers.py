@@ -1,18 +1,25 @@
 from flask import request, jsonify
 from models import Tour as Tours, Booking, User 
 from app import db
-
+from serializers import TourSchemaPost, TourSchemaGet, TourSchemaShow, TourSchemaPut
 
 #Tours
 
 def post_tour():
+    tour_data_schema = TourSchemaPost()
+    data = request.json
+    
+    try:
+        tour_data_schema.load(data)
+    except ValidationError as err:
 
-    request_form = request.get_json()
+        return jsonify({'error': err.messages}), 400
+
     new_tour = Tours(
-        name = request_form['name'],
-        description = request_form['description'],
-        price = request_form['price'],
-        date = request_form['date']
+        name = data['name'],
+        description = data['description'],
+        price = data['price'],
+        date = data['date']
     )
     db.session.add(new_tour)
     db.session.commit()
@@ -20,18 +27,27 @@ def post_tour():
     
 
 def get_tour():
+    tour_schema = TourSchemaGet()
     tours = Tours.query.all()
-    return jsonify([{'id': tour.id, 'name': tour.name, 'description': tour.description, 
-    'price': tour.price, 'date': tour.date } for tour in tours])
+    return jsonify([tour_schema.dump(tour) for tour in tours])
 
 
 def show_tour(tour_id):
+    tour_schema = TourSchemaShow()
     tour = Tours.query.get_or_404(tour_id)
-    return jsonify({'id': tour.id, 'name': tour.name, 'description': tour.description, 
-    'price': tour.price, 'date': tour.date})
+    return jsonify(tour_schema.dump(tour))
 
 
 def put_tour(tour_id):
+    tour_data_schema = TourSchemaPut()
+    data = request.json
+    
+    try:
+        tour_data_schema.load(data)
+    except ValidationError as err:
+
+        return jsonify({'error': err.messages}), 400
+    
     tour = Tours.query.get_or_404(tour_id)
     data = request.get_json()
     tour.name = data['name']
@@ -51,10 +67,20 @@ def delete_tour(tour_id):
 
 #Bookings
 
+from serializers import BookingSchemaPost, BookingSchemaGet, BookingSchemaShow
+
 def post_booking():
+    booking_data_schema = BookingSchemaPost()
+    data = request.json
+    
+    try:
+        booking_data_schema.load(data)
+    except ValidationError as err:
+
+        return jsonify({'error': err.messages}), 400
+
     data = request.get_json()
     new_booking = Booking(
-    # user= str(data['user']).strip().lower(), 
     quantity=data['quantity'], 
     date=data['date'],
     user_id=data['user_id'],
@@ -64,24 +90,16 @@ def post_booking():
     db.session.commit()
     return jsonify({'response': 'Booking successfully created'}), 201
 
-
 def get():
+    booking_schema = BookingSchemaGet()
     bookings = Booking.query.all()
-    return jsonify([{'id': booking.id, 'user': booking.user, 'quantity': booking.quantity, 
-    'date': booking.date} for booking in bookings])
-
+    return jsonify([booking_schema.dump(booking) for booking in bookings])
 
 def show_by_user(user):
-    # booking = request.args.get(user)
     user = int(user)
-    # bookings = Booking.query.filter_by(id=user).all()
+    booking_schema = BookingSchemaShow()
     bookings = Booking.query.filter_by(user_id=user).all()
-
-    # else:
-    #     booking = Booking.query.filter(user == user)
-    # print(Booking.query.filter(user == user))
-    return jsonify([{'id': booking.id, 'user_id': booking.user_id, 'quantity': booking.quantity, 
-    'date': booking.date} for booking in bookings])
+    return jsonify([booking_schema.dump(booking) for booking in bookings])
 
 def delete_booking(id):
     booking = Booking.query.get_or_404(id)
@@ -91,7 +109,17 @@ def delete_booking(id):
 
 # User
 
+from serializers import UserSchemaPost
+
 def create_user():
+    user_data_schema = UserSchemaPost()
+    data = request.json
+    
+    try:
+        user_data_schema.load(data)
+    except ValidationError as err:
+
+        return jsonify({'error': err.messages}), 400
     data = request.get_json()
     new_user = User(user=data['user'])
     db.session.add(new_user)
