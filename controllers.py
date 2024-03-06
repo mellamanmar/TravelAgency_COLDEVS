@@ -1,6 +1,5 @@
 from flask import request, jsonify
-from tour import Tours
-from booking import Booking
+from models import Tour as Tours, Booking, User 
 from app import db
 
 
@@ -55,10 +54,11 @@ def delete_tour(tour_id):
 def post_booking():
     data = request.get_json()
     new_booking = Booking(
-    user=data['user'], 
+    # user= str(data['user']).strip().lower(), 
     quantity=data['quantity'], 
-    date=data['date']
-    # tour_id=data['tour_id']
+    date=data['date'],
+    user_id=data['user_id'],
+    tour_id=data['tour_id']
     )
     db.session.add(new_booking)
     db.session.commit()
@@ -72,18 +72,28 @@ def get():
 
 
 def show_by_user(user):
-    booking_user = request.args.get(user)
-    if not user:
-        booking_user = Booking.query.all()
-        return jsonify([{'id': booking.id, 'user': booking.user, 
-        'quantity': booking.quantity, 'date': booking.date} for booking in bookings])
-    else:
-        booking_user = session.query(Booking).filter(Booking.user == user)
-    return jsonify({'id': booking.id, 'user': booking.user, 'quantity': booking.quantity})
+    # booking = request.args.get(user)
+    user = int(user)
+    # bookings = Booking.query.filter_by(id=user).all()
+    bookings = Booking.query.filter_by(user_id=user).all()
 
+    # else:
+    #     booking = Booking.query.filter(user == user)
+    # print(Booking.query.filter(user == user))
+    return jsonify([{'id': booking.id, 'user_id': booking.user_id, 'quantity': booking.quantity, 
+    'date': booking.date} for booking in bookings])
 
 def delete_booking(id):
     booking = Booking.query.get_or_404(id)
     db.session.delete(booking)
     db.session.commit()
     return jsonify({'response': 'Booking successfully deleted'})
+
+# User
+
+def create_user():
+    data = request.get_json()
+    new_user = User(user=data['user'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'response': 'User successfully created'}), 201

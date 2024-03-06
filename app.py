@@ -11,11 +11,11 @@ def create_app():
 
     db.init_app(app)
     
-    from routes import main as main_blueprint
+    from routes import user_r as user_blueprint
     from routes import tours_r as tour_blueprint
     from routes import booking_r as booking_blueprint
 
-    app.register_blueprint(main_blueprint)
+    app.register_blueprint(user_blueprint)
     app.register_blueprint(tour_blueprint)
     app.register_blueprint(booking_blueprint)
     
